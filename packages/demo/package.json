@@ -1,0 +1,17 @@
+{
+  "name": "@snapshot-sleuth/demo",
+  "version": "1.0.0",
+  "description": "Demo environment and scenarios for Snapshot Sleuth",
+  "scripts": {
+    "deploy": "node deploy.js",
+    "clean": "node clean.js"
+  },
+  "dependencies": {
+    "@snapshot-sleuth/shared": "workspace:*",
+    "@aws-sdk/client-cloudformation": "^3.515.0",
+    "@aws-sdk/client-ec2": "^3.515.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.16"
+  }
+}
