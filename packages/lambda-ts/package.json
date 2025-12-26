@@ -1,0 +1,26 @@
+{
+  "name": "@snapshot-sleuth/lambda-ts",
+  "version": "1.0.0",
+  "description": "TypeScript Lambda functions for Snapshot Sleuth",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "lint": "eslint src --ext .ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@snapshot-sleuth/shared": "workspace:*",
+    "@snapshot-sleuth/adapters": "workspace:*",
+    "@aws-sdk/client-ec2": "^3.515.0",
+    "@aws-sdk/client-s3": "^3.515.0",
+    "@aws-sdk/client-sns": "^3.515.0",
+    "@aws-sdk/client-sfn": "^3.515.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.133",
+    "@types/node": "^20.11.16",
+    "typescript": "^5.3.3"
+  }
+}

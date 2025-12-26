@@ -1,0 +1,22 @@
+{
+  "name": "@snapshot-sleuth/adapters",
+  "version": "1.0.0",
+  "description": "Pluggable adapter layer for case management, ticketing, and notifications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "lint": "eslint src --ext .ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@snapshot-sleuth/shared": "workspace:*",
+    "@octokit/rest": "^20.0.2",
+    "axios": "^1.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.16",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "environment": "development",
+  "projectName": "snapshot-sleuth",
+  "aws": {
+    "region": "us-east-1",
+    "s3BucketPrefix": "snapshot-sleuth"
+  },
+  "adapters": {
+    "caseManagement": {
+      "provider": "GITHUB",
+      "config": {
+        "token": "${GITHUB_TOKEN}",
+        "owner": "your-org",
+        "repo": "security-cases"
+      }
+    },
+    "ticketing": {
+      "provider": "GITHUB",
+      "config": {
+        "token": "${GITHUB_TOKEN}",
+        "owner": "your-org",
+        "repo": "security-tickets"
+      }
+    },
+    "notifications": [
+      {
+        "channel": "SLACK",
+        "enabled": true,
+        "config": {
+          "webhookUrl": "${SLACK_WEBHOOK_URL}",
+          "channel": "#security-alerts",
+          "username": "Snapshot Sleuth",
+          "iconEmoji": ":detective:"
+        }
+      },
+      {
+        "channel": "EMAIL",
+        "enabled": false,
+        "config": {
+          "fromAddress": "noreply@example.com",
+          "toAddresses": ["security@example.com"],
+          "sesRegion": "us-east-1"
+        }
+      }
+    ]
+  },
+  "forensicTools": {
+    "yara": {
+      "enabled": true,
+      "rulesS3Bucket": "your-yara-rules-bucket",
+      "rulesS3Key": "rules/index.yar",
+      "timeout": 3600
+    },
+    "clamav": {
+      "enabled": true,
+      "timeout": 3600
+    },
+    "wolverine": {
+      "enabled": false,
+      "timeout": 7200
+    },
+    "log2timeline": {
+      "enabled": false,
+      "timeout": 7200
+    }
+  },
+  "monitoring": {
+    "enableCloudWatch": true,
+    "enableCloudTrail": true,
+    "createDashboard": true,
+    "alarmEmail": "alerts@example.com",
+    "logRetentionDays": 30
+  },
+  "demo": {
+    "enabled": false,
+    "autoExpiry": true,
+    "ttlHours": 24,
+    "costAlertThreshold": 100
+  }
+}
