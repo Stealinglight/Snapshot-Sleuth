@@ -1,0 +1,10 @@
+{
+  "name": "@snapshot-sleuth/lambda-py",
+  "version": "1.0.0",
+  "description": "Python Lambda functions for forensic tool execution",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "package": "python3 -m pip install -r requirements.txt -t dist/",
+    "build": "npm run package"
+  }
+}
