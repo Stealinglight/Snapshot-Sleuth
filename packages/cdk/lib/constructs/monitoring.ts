@@ -61,7 +61,7 @@ Automated Cloud Forensics and Incident Response Dashboard`,
   /**
    * Add workflow metrics to dashboard
    */
-  addWorkflowMetrics(stateMachineArn: string): void {
+  addWorkflowMetrics(_stateMachineArn: string): void {
     const namespace = 'AWS/States';
 
     this.dashboard.addWidgets(

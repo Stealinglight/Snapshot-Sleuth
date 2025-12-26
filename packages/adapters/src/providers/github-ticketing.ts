@@ -2,7 +2,7 @@
  * GitHub Issues adapter for ticketing
  */
 import { Octokit } from '@octokit/rest';
-import { Issue, IssueStatus, Comment, GitHubConfig, formatTimestamp } from '@snapshot-sleuth/shared';
+import { Issue, IssueStatus, Comment, GitHubConfig } from '@snapshot-sleuth/shared';
 import { ITicketingAdapter } from '../interfaces';
 
 export class GitHubTicketingAdapter implements ITicketingAdapter {

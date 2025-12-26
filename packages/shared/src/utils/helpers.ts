@@ -1,7 +1,7 @@
 /**
  * Shared utility functions
  */
-import { randomBytes } from 'crypto';
+import { randomBytes, createHash } from 'crypto';
 
 /**
  * Generate a unique case ID
@@ -25,8 +25,7 @@ export function generateFindingId(toolName: string): string {
  * Calculate SHA-256 hash of a string
  */
 export function calculateHash(data: string): string {
-  const crypto = require('crypto');
-  return crypto.createHash('sha256').update(data).digest('hex');
+  return createHash('sha256').update(data).digest('hex');
 }
 
 /**

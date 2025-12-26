@@ -6,7 +6,6 @@ import {
   Notification,
   NotificationChannel,
   SlackConfig,
-  formatTimestamp,
 } from '@snapshot-sleuth/shared';
 import { INotificationAdapter } from '../interfaces';
 

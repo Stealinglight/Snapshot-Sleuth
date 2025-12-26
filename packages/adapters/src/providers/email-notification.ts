@@ -5,7 +5,6 @@ import {
   Notification,
   NotificationChannel,
   EmailConfig,
-  formatTimestamp,
 } from '@snapshot-sleuth/shared';
 import { INotificationAdapter } from '../interfaces';
 
