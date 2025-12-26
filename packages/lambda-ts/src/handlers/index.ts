@@ -1,5 +1,5 @@
 /**
  * Export all handlers
  */
-export * from './validate-snapshot';
-export * from './send-notification';
+export { handler as validateSnapshotHandler } from './validate-snapshot';
+export { handler as sendNotificationHandler } from './send-notification';
