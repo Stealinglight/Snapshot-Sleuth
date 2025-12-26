@@ -8,7 +8,7 @@
 
 ## Overview
 
-Snapshot Sleuth (ARF - Automated Response Framework) is a comprehensive cloud forensics and incident-response workflow designed to help security teams investigate EBS snapshot-based evidence quickly and consistently. The system orchestrates analysis, runs multiple forensic tools, and publishes evidence and results into durable storage with clear case tracking and notifications.
+Snapshot Sleuth is a comprehensive cloud forensics and incident-response workflow designed to help security teams investigate EBS snapshot-based evidence quickly and consistently. The system orchestrates analysis, runs multiple forensic tools, and publishes evidence and results into durable storage with clear case tracking and notifications.
 
 ## Key Features
 
