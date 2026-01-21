@@ -11,8 +11,8 @@ By participating in this project, you agree to abide by our Code of Conduct (tre
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/Snapshot-Sleuth.git`
 3. Add upstream remote: `git remote add upstream https://github.com/Stealinglight/Snapshot-Sleuth.git`
-4. Install dependencies: `pnpm install`
-5. Build the project: `pnpm build`
+4. Install dependencies: `bun install`
+5. Build the project: `bun run build`
 
 ## Development Workflow
 
@@ -34,8 +34,8 @@ Use descriptive branch names:
 2. Follow the existing code style
 3. Add tests for new functionality
 4. Update documentation as needed
-5. Run linters: `pnpm lint`
-6. Build the project: `pnpm build`
+5. Run linters: `bun run lint`
+6. Build the project: `bun run build`
 
 ### Committing Changes
 
@@ -84,7 +84,7 @@ docs(readme): update installation instructions
 ## Testing
 
 - Write unit tests for new functionality
-- Ensure all tests pass: `pnpm test`
+- Ensure all tests pass: `bun test`
 - Aim for high code coverage
 - Test edge cases and error conditions
 

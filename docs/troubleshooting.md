@@ -4,19 +4,18 @@
 
 ### Installation Issues
 
-#### pnpm install fails
+#### bun install fails
 
 **Error**: `ENOENT: no such file or directory`
 
 **Solution**:
 ```bash
-# Clear caches
-pnpm store prune
+# Clear caches and reinstall
 rm -rf node_modules
-rm pnpm-lock.yaml
+rm bun.lock
 
 # Reinstall
-pnpm install
+bun install
 ```
 
 #### Build fails with TypeScript errors
@@ -26,9 +25,9 @@ pnpm install
 **Solution**:
 ```bash
 # Build packages in order
-cd packages/shared && pnpm build
-cd ../adapters && pnpm build
-cd ../cdk && pnpm build
+cd packages/shared && bun run build
+cd ../adapters && bun run build
+cd ../cdk && bun run build
 ```
 
 ### Deployment Issues
@@ -47,7 +46,7 @@ export CDK_DEFAULT_ACCOUNT=$(aws sts get-caller-identity --query Account --outpu
 export CDK_DEFAULT_REGION=us-east-1
 
 # Bootstrap again
-pnpm cdk bootstrap
+bun run cdk bootstrap
 ```
 
 #### Stack deployment fails with permission errors
@@ -188,8 +187,8 @@ aws logs describe-log-groups --log-group-name-prefix /aws/snapshot-sleuth
 ```bash
 cd packages/frontend
 rm -rf node_modules
-pnpm install
-pnpm build
+bun install
+bun run build
 ```
 
 #### Frontend not connecting to backend
@@ -229,7 +228,7 @@ If you continue to experience issues:
 2. **Enable debug logging**:
 ```bash
 export DEBUG=true
-pnpm cdk deploy
+bun run cdk deploy
 ```
 
 3. **Open an issue**:
