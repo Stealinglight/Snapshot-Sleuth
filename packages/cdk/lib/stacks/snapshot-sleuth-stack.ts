@@ -117,8 +117,8 @@ export class SnapshotSleuthStack extends cdk.Stack {
     );
 
     runForensicTools.branch(
-      new stepfunctions.Pass(this, 'RunWolverine', {
-        comment: 'Run Wolverine artifact extraction',
+      new stepfunctions.Pass(this, 'RunEvidenceMiner', {
+        comment: 'Run EvidenceMiner artifact extraction',
       })
     );
 

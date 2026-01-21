@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies required for 'last' command and other utilities
+RUN apt-get update && apt-get install -y \
+    util-linux \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the Evidence Miner script
+COPY tools/evidence_miner.py /app/evidence_miner.py
+RUN chmod +x /app/evidence_miner.py
+
+ENTRYPOINT ["python3", "/app/evidence_miner.py"]

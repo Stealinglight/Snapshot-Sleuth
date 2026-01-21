@@ -15,7 +15,7 @@ Snapshot Sleuth is a comprehensive cloud forensics and incident-response workflo
 ### 🔍 Forensic Tool Pipeline
 - **YARA** - Rule-based detection and pattern matching
 - **ClamAV** - Malware scanning and virus detection
-- **Wolverine** - Artifact extraction and classification
+- **EvidenceMiner** - Artifact extraction and classification
 - **Log2Timeline** - Timeline generation and analysis
 
 ### 🔌 Pluggable Adapter Layer
