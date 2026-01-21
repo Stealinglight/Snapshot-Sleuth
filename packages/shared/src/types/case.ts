@@ -43,7 +43,7 @@ export enum WorkflowStatus {
 export enum ForensicTool {
   YARA = 'YARA',
   CLAMAV = 'CLAMAV',
-  WOLVERINE = 'WOLVERINE',
+  EVIDENCE_MINER = 'EVIDENCE_MINER',
   LOG2TIMELINE = 'LOG2TIMELINE',
 }
 
