@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "Automated cloud forensics and incident-response workflow",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
@@ -21,9 +24,8 @@
     "turbo": "^1.12.4",
     "typescript": "^5.3.3"
   },
-  "packageManager": "pnpm@8.15.1",
+  "packageManager": "bun@1.0.0",
   "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
+    "node": ">=18.0.0"
   }
 }

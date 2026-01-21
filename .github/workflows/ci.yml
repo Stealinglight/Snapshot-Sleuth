@@ -13,40 +13,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: '18'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          bun-version: latest
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        run: bun run lint
 
       - name: Build
-        run: pnpm build
+        run: bun run build
 
       - name: Test
-        run: pnpm test || echo "Tests not yet configured"
+        run: bun run test || echo "Tests not yet configured"
 
   security-scan:
     runs-on: ubuntu-latest
@@ -54,6 +36,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Node.js for security audit
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
       - name: Run npm audit
         run: npm audit --audit-level=moderate || true
