@@ -23,7 +23,7 @@ handlers/
 ## Building
 
 ```bash
-pnpm build
+bun run build
 ```
 
 This will:

@@ -7,7 +7,7 @@ Before deploying Snapshot Sleuth, ensure you have:
 - AWS Account with appropriate permissions
 - AWS CLI configured (`aws configure`)
 - Node.js >= 18.0.0
-- pnpm >= 8.0.0
+- Bun >= 1.0.0
 - AWS CDK CLI (`npm install -g aws-cdk`)
 
 ## Initial Setup
@@ -20,12 +20,12 @@ cd Snapshot-Sleuth
 
 2. **Install dependencies**:
 ```bash
-pnpm install
+bun install
 ```
 
 3. **Build all packages**:
 ```bash
-pnpm build
+bun run build
 ```
 
 ## Configuration
@@ -59,17 +59,17 @@ EOF
 1. **Bootstrap CDK** (first time only):
 ```bash
 cd packages/cdk
-pnpm cdk bootstrap
+bun run cdk bootstrap
 ```
 
 2. **Review changes**:
 ```bash
-pnpm cdk diff
+bun run cdk diff
 ```
 
 3. **Deploy the stack**:
 ```bash
-pnpm cdk deploy
+bun run cdk deploy
 ```
 
 4. **Note the outputs**:
@@ -92,12 +92,12 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm install -g pnpm@8
-        - pnpm install
+        - curl -fsSL https://bun.sh/install | bash
+        - bun install
     build:
       commands:
         - cd packages/frontend
-        - pnpm build
+        - bun run build
   artifacts:
     baseDirectory: packages/frontend/dist
     files:
@@ -111,7 +111,7 @@ frontend:
 
 ```bash
 cd packages/frontend
-pnpm build
+bun run build
 aws s3 sync dist/ s3://your-frontend-bucket
 ```
 
@@ -154,7 +154,7 @@ To remove all resources:
 
 ```bash
 cd packages/cdk
-pnpm cdk destroy
+bun run cdk destroy
 ```
 
 **Note**: S3 buckets with versioning enabled will need manual deletion.

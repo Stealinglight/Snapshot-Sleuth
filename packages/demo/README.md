@@ -22,7 +22,7 @@ A clean snapshot for comparison and baseline testing.
 
 ```bash
 cd packages/demo
-pnpm deploy
+bun run deploy
 ```
 
 This will:
@@ -55,7 +55,7 @@ Edit `config.json`:
 ## Cleanup
 
 ```bash
-pnpm clean
+bun run clean
 ```
 
 Removes all demo resources immediately.

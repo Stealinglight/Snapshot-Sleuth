@@ -38,7 +38,7 @@ Snapshot Sleuth is a comprehensive cloud forensics and incident-response workflo
 
 ## Architecture
 
-The project is organized as a TypeScript monorepo using pnpm workspaces and Turborepo:
+The project is organized as a TypeScript monorepo using Bun workspaces and Turborepo:
 
 ```
 packages/
@@ -56,7 +56,7 @@ packages/
 ### Prerequisites
 
 - Node.js >= 18.0.0
-- pnpm >= 8.0.0
+- Bun >= 1.0.0
 - AWS CLI configured
 - AWS CDK CLI installed
 
@@ -68,10 +68,10 @@ git clone https://github.com/Stealinglight/Snapshot-Sleuth.git
 cd Snapshot-Sleuth
 
 # Install dependencies
-pnpm install
+bun install
 
 # Build all packages
-pnpm build
+bun run build
 ```
 
 ### Configuration
@@ -113,7 +113,7 @@ Create a configuration file based on your environment:
 ```bash
 # Deploy CDK stack
 cd packages/cdk
-pnpm cdk deploy
+bun run cdk deploy
 ```
 
 ### Development
@@ -121,11 +121,11 @@ pnpm cdk deploy
 ```bash
 # Start frontend development server
 cd packages/frontend
-pnpm dev
+bun run dev
 
 # Watch for changes in shared packages
 cd packages/shared
-pnpm build --watch
+bun run build --watch
 ```
 
 ## Workflow

@@ -6,7 +6,7 @@ Get Snapshot Sleuth up and running in minutes.
 
 Ensure you have:
 - Node.js 18+ installed
-- pnpm 8+ installed (`npm install -g pnpm`)
+- Bun 1.0+ installed (`curl -fsSL https://bun.sh/install | bash`)
 - AWS CLI configured with credentials
 - AWS CDK CLI installed (`npm install -g aws-cdk`)
 
@@ -15,7 +15,7 @@ Ensure you have:
 ```bash
 git clone https://github.com/Stealinglight/Snapshot-Sleuth.git
 cd Snapshot-Sleuth
-pnpm install
+bun install
 ```
 
 ## 2. Configure
@@ -37,7 +37,7 @@ At minimum, set:
 Build all packages:
 
 ```bash
-pnpm build
+bun run build
 ```
 
 ## 4. Deploy Infrastructure
@@ -46,13 +46,13 @@ Bootstrap CDK (first time only):
 
 ```bash
 cd packages/cdk
-pnpm cdk bootstrap
+bun run cdk bootstrap
 ```
 
 Deploy the stack:
 
 ```bash
-pnpm cdk deploy
+bun run cdk deploy
 ```
 
 Note the outputs, especially the State Machine ARN.
@@ -95,25 +95,25 @@ View the execution in:
 
 ```bash
 # Build all packages
-pnpm build
+bun run build
 
 # Lint code
-pnpm lint
+bun run lint
 
 # Format code
-pnpm format
+bun run format
 
 # Run frontend locally
-cd packages/frontend && pnpm dev
+cd packages/frontend && bun run dev
 
 # Deploy CDK changes
-cd packages/cdk && pnpm cdk deploy
+cd packages/cdk && bun run cdk deploy
 
 # View CDK diff
-cd packages/cdk && pnpm cdk diff
+cd packages/cdk && bun run cdk diff
 
 # Destroy infrastructure
-cd packages/cdk && pnpm cdk destroy
+cd packages/cdk && bun run cdk destroy
 ```
 
 ## Troubleshooting
@@ -121,8 +121,8 @@ cd packages/cdk && pnpm cdk destroy
 If you encounter issues, see the [Troubleshooting Guide](./docs/troubleshooting.md).
 
 Common fixes:
-- Clear caches: `pnpm store prune`
-- Rebuild: `pnpm clean && pnpm build`
+- Clear caches: `rm -rf node_modules && bun install`
+- Rebuild: `bun run clean && bun run build`
 - Check AWS credentials: `aws sts get-caller-identity`
 
 ## What's Next?
