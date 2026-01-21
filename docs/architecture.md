@@ -80,5 +80,5 @@ Modern React application with:
 - **Infrastructure**: AWS CDK (TypeScript)
 - **Backend**: Lambda (TypeScript, Python)
 - **Frontend**: React + Vite + TypeScript
-- **Monorepo**: pnpm + Turborepo
+- **Monorepo**: Bun workspaces + Turborepo
 - **CI/CD**: GitHub Actions
