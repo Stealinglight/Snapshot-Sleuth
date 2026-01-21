@@ -9,6 +9,7 @@
     "watch": "tsc -w",
     "clean": "rm -rf lib cdk.out",
     "lint": "eslint bin lib --ext .ts",
+    "typecheck": "tsc --noEmit",
     "cdk": "cdk"
   },
   "dependencies": {
