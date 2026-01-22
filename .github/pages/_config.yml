@@ -8,8 +8,8 @@ description: >-
   A production-grade serverless forensic automation system for AWS EBS snapshots.
   Technical case study showcasing event-driven architecture, AWS Step Functions,
   and Infrastructure as Code patterns that achieved 71% faster processing times.
-url: "" # Set to your GitHub Pages URL when deploying
-baseurl: "" # Subpath of site, e.g. /Snapshot-Sleuth
+url: "https://stealinglight.github.io" # GitHub Pages URL
+baseurl: "/Snapshot-Sleuth" # Subpath of site
 repository: Stealinglight/Snapshot-Sleuth
 
 # Author information
