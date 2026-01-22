@@ -10,6 +10,10 @@
 
 Snapshot Sleuth is a comprehensive cloud forensics and incident-response workflow designed to help security teams investigate EBS snapshot-based evidence quickly and consistently. The system orchestrates analysis, runs multiple forensic tools, and publishes evidence and results into durable storage with clear case tracking and notifications.
 
+**📚 [View the project portfolio and technical case study](https://stealinglight.github.io/Snapshot-Sleuth/)**
+
+The portfolio website is built with Jekyll and automatically deployed to GitHub Pages. Website source files are located in `.github/pages/`.
+
 ## Key Features
 
 ### 🔍 Forensic Tool Pipeline
