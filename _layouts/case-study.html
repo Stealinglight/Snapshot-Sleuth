@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title }} | {{ site.title }}</title>
+  <meta name="description" content="{{ page.description | default: site.description }}">
+
+  <!-- SEO -->
+  <meta property="og:title" content="{{ page.title }}">
+  <meta property="og:description" content="{{ page.description | default: site.description }}">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+
+  <!-- Mermaid for diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+        themeVariables: {
+          primaryColor: '#3b82f6',
+          primaryTextColor: '#f1f5f9',
+          primaryBorderColor: '#475569',
+          lineColor: '#64748b',
+          secondaryColor: '#1e293b',
+          tertiaryColor: '#0f172a',
+          background: '#0f172a',
+          mainBkg: '#1e293b',
+          secondBkg: '#334155',
+          nodeBorder: '#475569',
+          clusterBkg: '#1e293b',
+          clusterBorder: '#475569',
+          titleColor: '#f1f5f9',
+          edgeLabelBackground: '#1e293b'
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  {% include header.html %}
+
+  <main class="case-study">
+    <article>
+      <header class="case-study-header">
+        <div class="case-study-meta">
+          <a href="{{ '/' | relative_url }}" class="back-link">&larr; Back to Project</a>
+          <span class="reading-time">{{ page.readTime }} min read</span>
+        </div>
+        <h1>{{ page.title }}</h1>
+        {% if page.subtitle %}
+        <p class="subtitle">{{ page.subtitle }}</p>
+        {% endif %}
+        <div class="author-date">
+          <span class="author">{{ page.author | default: site.author.name }}</span>
+          <span class="separator">&middot;</span>
+          <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: "%B %d, %Y" }}</time>
+        </div>
+      </header>
+
+      <div class="case-study-content">
+        {{ content }}
+      </div>
+
+      <footer class="case-study-footer">
+        <div class="footer-nav">
+          <a href="{{ '/' | relative_url }}" class="nav-link">&larr; Back to Project Overview</a>
+          <a href="https://github.com/{{ site.repository }}" class="nav-link">View Source Code &rarr;</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+
+  {% include footer.html %}
+</body>
+</html>

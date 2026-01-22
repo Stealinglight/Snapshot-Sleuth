@@ -178,3 +178,11 @@ config.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Jekyll
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+vendor/
+Gemfile.lock
