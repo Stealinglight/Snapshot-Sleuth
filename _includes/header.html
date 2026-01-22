@@ -1,9 +1,11 @@
 <header class="site-header">
   <div class="wrapper">
-    <a class="site-title" rel="author" href="{{ '/' | relative_url }}">{{ site.title | escape }}</a>
-    {% if site.tagline %}
-    <span class="site-tagline">{{ site.tagline }}</span>
-    {% endif %}
+    <div>
+      <a class="site-title" rel="author" href="{{ '/' | relative_url }}">{{ site.title | escape }}</a>
+      {% if site.tagline %}
+      <span class="site-tagline">{{ site.tagline }}</span>
+      {% endif %}
+    </div>
 
     <nav class="site-nav">
       <input type="checkbox" id="nav-trigger" class="nav-trigger" />
@@ -16,8 +18,8 @@
       </label>
 
       <div class="trigger">
-        <a class="page-link" href="{{ '/' | relative_url }}">Home</a>
-        <a class="page-link" href="{{ '/blog/' | relative_url }}">Blog</a>
+        <a class="page-link" href="{{ '/' | relative_url }}">Project</a>
+        <a class="page-link" href="{{ '/case-study' | relative_url }}">Case Study</a>
         <a class="page-link" href="https://github.com/{{ site.repository }}" target="_blank">GitHub</a>
       </div>
     </nav>

@@ -1,14 +1,15 @@
-# Jekyll Configuration for Snapshot-Sleuth Portfolio Blog
+# Jekyll Configuration for Snapshot-Sleuth Portfolio
 # https://jekyllrb.com/docs/configuration/
 
 # Site settings
 title: Snapshot-Sleuth
 tagline: Serverless Forensic Automation System
 description: >-
-  A technical portfolio showcasing cloud security engineering, serverless architecture,
-  and Infrastructure as Code. Featuring case studies on AWS forensic automation systems.
+  A production-grade serverless forensic automation system for AWS EBS snapshots.
+  Technical case study showcasing event-driven architecture, AWS Step Functions,
+  and Infrastructure as Code patterns that achieved 71% faster processing times.
 url: "" # Set to your GitHub Pages URL when deploying
-baseurl: "" # Subpath of site, e.g. /blog
+baseurl: "" # Subpath of site, e.g. /Snapshot-Sleuth
 repository: Stealinglight/Snapshot-Sleuth
 
 # Author information
@@ -16,8 +17,6 @@ author:
   name: Cloud Security Engineering
   bio: Cloud security engineer specializing in serverless architecture, incident response automation, and Infrastructure as Code.
   github: Stealinglight
-  linkedin: ""
-  twitter: ""
 
 # Build settings
 markdown: kramdown
@@ -27,13 +26,10 @@ kramdown:
   syntax_highlighter: rouge
   syntax_highlighter_opts:
     block:
-      line_numbers: true
+      line_numbers: false
 
-# Theme settings - using Minima for clean, professional look
+# Theme - using minima as base
 theme: minima
-minima:
-  skin: dark
-  date_format: "%B %-d, %Y"
 
 # Plugins
 plugins:
@@ -41,21 +37,6 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
   - jekyll-relative-links
-  - jekyll-mermaid
-
-# Mermaid diagrams support
-mermaid:
-  src: https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js
-
-# Collections for organizing content
-collections:
-  case_studies:
-    output: true
-    permalink: /case-studies/:name/
-
-# Pagination
-paginate: 10
-paginate_path: "/blog/page:num/"
 
 # Exclude from processing
 exclude:
@@ -76,6 +57,8 @@ exclude:
   - SECURITY.md
   - docs/
   - vendor/
+  - README.md
+  - _case_studies/
 
 # Include in processing
 include:
@@ -85,28 +68,14 @@ include:
 defaults:
   - scope:
       path: ""
-      type: "posts"
     values:
-      layout: "post"
-      author: "Cloud Security Engineering"
-  - scope:
-      path: ""
-      type: "case_studies"
-    values:
-      layout: "case-study"
+      layout: "default"
 
 # SEO settings
 twitter:
   card: summary_large_image
 
-# Social links (displayed in footer)
+# Social links
 social_links:
   - platform: github
     user_url: https://github.com/Stealinglight/Snapshot-Sleuth
-
-# Google Analytics (optional - add your tracking ID)
-# google_analytics: UA-XXXXXXXX-X
-
-# Reading time calculation
-reading_time: true
-words_per_minute: 200

@@ -1,43 +1,12 @@
 ---
-layout: post
+layout: case-study
 title: "Building Snapshot-Sleuth: A Serverless Forensic Automation System"
 subtitle: "How event-driven architecture and Infrastructure as Code delivered 71% faster incident response"
 author: "Cloud Security Engineering"
 date: 2025-01-21
 readTime: 12
-tags:
-  - aws
-  - serverless
-  - security
-  - forensics
-  - cdk
-  - step-functions
-  - typescript
-  - python
-  - architecture
-categories:
-  - Cloud Engineering
-  - Security
-  - DevOps
 description: "A technical case study on building an automated forensic analysis system using AWS serverless services. Learn how event-driven architecture, Infrastructure as Code, and modular design patterns achieved 71% faster processing times while handling enterprise-scale security incidents."
-image: /assets/images/blog/snapshot-sleuth-architecture.png
-featured: true
-seo:
-  title: "Building Snapshot-Sleuth: Serverless Forensic Automation | Cloud Engineering Case Study"
-  description: "Learn how to build an automated forensic analysis system using AWS serverless services. This technical case study covers event-driven architecture, Step Functions orchestration, and Infrastructure as Code patterns that achieved 71% faster processing times."
-  keywords:
-    - AWS serverless
-    - forensic automation
-    - Step Functions
-    - CDK
-    - event-driven architecture
-    - cloud security
-    - incident response
-    - EBS snapshot
-    - Lambda
-    - Infrastructure as Code
-    - TypeScript
-    - Python
+permalink: /case-study/
 ---
 
 When a security incident strikes, time is the enemy. Every minute spent on manual forensic analysis is a minute an attacker could be deepening their foothold. For security teams handling cloud workloads, the challenge is amplified: how do you analyze potentially terabytes of disk data quickly, consistently, and without specialized forensic expertise?
@@ -496,4 +465,4 @@ The best forensic analysis still requires human judgment. What automation provid
 
 ---
 
-*This post describes architectural patterns and approaches from a production forensic automation system. Specific tool names, metrics, and implementation details have been generalized for public presentation.*
+*This case study describes architectural patterns and approaches from a production forensic automation system. Specific tool names, metrics, and implementation details have been generalized for public presentation.*
