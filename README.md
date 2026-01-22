@@ -2,6 +2,8 @@
 
 > Automated Cloud Forensics and Incident Response Workflow
 
+**📖 [View Project Portfolio & Technical Case Study](https://stealinglight.github.io/Snapshot-Sleuth/)**
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)
 ![AWS CDK](https://img.shields.io/badge/AWS%20CDK-2.125-orange.svg)
