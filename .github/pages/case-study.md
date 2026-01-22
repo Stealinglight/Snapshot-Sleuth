@@ -42,6 +42,7 @@ The redesign centered on three principles: event-driven processing, serverless-f
 The workflow begins when an analyst shares an EBS snapshot with the forensic system's AWS account. This simple action—standard AWS snapshot sharing—triggers everything that follows.
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4a90a4', 'secondaryColor': '#f4f4f4', 'tertiaryColor': '#fff', 'primaryTextColor': '#333', 'lineColor': '#666'}}}%%
 flowchart TB
     subgraph Source["Evidence Source"]
         A[("EBS Snapshot<br/>Shared by Analyst")]
@@ -68,6 +69,17 @@ flowchart TB
         M["Timeline<br/>Generator"]
     end
 
+    subgraph Storage["Evidence Storage"]
+        N[("S3 Evidence<br/>Bucket")]
+        O[("DynamoDB<br/>State Table")]
+    end
+
+    subgraph Notifications["Notifications & Integration"]
+        P["Slack<br/>Notification"]
+        Q["Incident<br/>Management"]
+        R["Dashboard<br/>Updates"]
+    end
+
     A -->|"Snapshot Shared"| B
     B -->|"Event Detected"| C
     C -->|"Queue Processing"| D
@@ -81,6 +93,29 @@ flowchart TB
     I --> K
     I --> L
     I --> M
+    J -->|"Upload"| N
+    K -->|"Upload"| N
+    L -->|"Upload"| N
+    M -->|"Upload"| N
+    H -->|"Callback"| E
+    E -->|"Update State"| O
+    E -->|"Complete"| P
+    E -->|"Update"| Q
+    O -->|"Metrics"| R
+
+    classDef source fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef event fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef orchestration fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    classDef forensic fill:#fce4ec,stroke:#e91e63,stroke-width:2px
+    classDef storage fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef notify fill:#e0f7fa,stroke:#00bcd4,stroke-width:2px
+
+    class A source
+    class B,C,D event
+    class E,F,G orchestration
+    class H,I,J,K,L,M forensic
+    class N,O storage
+    class P,Q,R notify
 ```
 
 EventBridge detects the snapshot sharing event and routes it to an SQS queue. EventBridge Pipes (in supported regions) or a fallback Lambda invokes the Step Functions state machine. This decoupled ingestion provides natural backpressure handling and ensures no events are lost during system updates.
@@ -110,6 +145,7 @@ This pattern gives us the best of both worlds: Step Functions handles state mana
 The infrastructure is organized into 16 specialized CDK stacks, each with clear responsibilities:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4a90a4'}}}%%
 flowchart TB
     subgraph Foundation["Foundation Layer"]
         SR["ServiceRolesStack<br/><i>15+ IAM Roles</i>"]
@@ -128,11 +164,63 @@ flowchart TB
         ALERT["AlertingStack<br/><i>Security Events</i>"]
     end
 
+    subgraph Lifecycle["Lifecycle Management"]
+        CLEAN["CleanupStack<br/><i>Resource Lifecycle</i>"]
+    end
+
+    subgraph Analytics["Analytics Layer"]
+        ANA["AnalyticsStack<br/><i>Glue + Athena</i>"]
+        QS["QuickSightStack<br/><i>BI Dashboards</i>"]
+    end
+
+    subgraph Intelligence["Intelligence Layer"]
+        AI["IntelligenceStack<br/><i>Bedrock AI</i>"]
+    end
+
+    subgraph Testing["Testing Layer"]
+        TEST["TestingStack<br/><i>Integration Tests</i>"]
+    end
+
+    subgraph Frontend["Frontend Layer"]
+        WEB["WebStack<br/><i>React + CloudFront</i>"]
+        WIKI["WikiStack<br/><i>Documentation</i>"]
+    end
+
+    SR --> LOG
+    SR --> DB
     SR --> COL
     LOG --> COL
     DB --> COL
+    SR --> IMG
     COL --> MET
+    SR --> MON
     MET --> MON
+    SR --> ALERT
+    COL --> CLEAN
+    DB --> ANA
+    ANA --> QS
+    SR --> AI
+    SR --> TEST
+    SR --> WEB
+    MON --> WIKI
+
+    classDef foundation fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px
+    classDef core fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    classDef observe fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef lifecycle fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef analytics fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef intel fill:#fce4ec,stroke:#e91e63,stroke-width:2px
+    classDef testing fill:#e0f7fa,stroke:#00bcd4,stroke-width:2px
+    classDef frontend fill:#fafafa,stroke:#607d8b,stroke-width:2px
+
+    class SR,LOG,DB foundation
+    class COL,IMG,MET core
+    class MON,ALERT observe
+    class CLEAN lifecycle
+    class ANA,QS analytics
+    class AI intel
+    class TEST testing
+    class WEB,WIKI frontend
 ```
 
 This separation provides several benefits. Stacks deploy independently, reducing blast radius during updates. IAM roles are centralized in ServiceRolesStack, preventing permission sprawl. The observability layer can evolve without touching core processing.
@@ -180,6 +268,7 @@ The key Lambda functions include:
 The EC2-based forensic analysis runs a Python orchestrator that coordinates four specialized tools:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4a90a4'}}}%%
 flowchart LR
     subgraph Download["Image Acquisition"]
         A["ColdSnap<br/>Download"]
@@ -199,6 +288,17 @@ flowchart LR
         I["Timeline<br/>Generation"]
     end
 
+    subgraph Collect["Evidence Collection"]
+        J["JSON<br/>Reports"]
+        K["Markdown<br/>Summary"]
+        L["Timeline<br/>CSV"]
+    end
+
+    subgraph Upload["Evidence Upload"]
+        M["S3 Upload<br/>w/ Encryption"]
+        N["Metadata<br/>to DynamoDB"]
+    end
+
     A -->|"Stream"| B
     B --> C
     C --> D
@@ -207,6 +307,26 @@ flowchart LR
     E --> G
     E --> H
     E --> I
+    F --> J
+    G --> J
+    H --> K
+    I --> L
+    J --> M
+    K --> M
+    L --> M
+    M --> N
+
+    classDef download fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    classDef mount fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef scan fill:#fce4ec,stroke:#e91e63,stroke-width:2px
+    classDef collect fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef upload fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+
+    class A,B download
+    class C,D,E mount
+    class F,G,H,I scan
+    class J,K,L collect
+    class M,N upload
 ```
 
 Each scanner implements a common interface with timeout protection—critical when scanning unknown filesystems:
@@ -368,34 +488,81 @@ def trace(name: Optional[str] = None, namespace: str = "Sleuth"):
 **Phase 3: Modular dashboards.** Eight specialized CloudWatch dashboards, each a reusable CDK construct:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4a90a4'}}}%%
 flowchart TB
     subgraph Sources["Metric Sources"]
-        SF["Step Functions"]
-        EC2["EC2 Instances"]
-        LAM["Lambda Functions"]
+        SF["Step Functions<br/>Executions"]
+        EC2["EC2 Forensic<br/>Instances"]
+        LAM["Lambda<br/>Functions"]
+        CAN["Canary<br/>Tests"]
+    end
+
+    subgraph Collection["EventBridge Collection"]
+        EB{{"EventBridge<br/>Rules"}}
+        PROC["Metrics<br/>Processor<br/>Lambda"]
     end
 
     subgraph Namespaces["CloudWatch Namespaces"]
-        NS1["Sleuth/Workflow"]
-        NS2["Sleuth/Tools"]
-        NS3["Sleuth/Evidence"]
-        NS4["Sleuth/Service"]
+        NS1["Sleuth/Workflow<br/><i>Execution metrics</i>"]
+        NS2["Sleuth/Tools<br/><i>Tool performance</i>"]
+        NS3["Sleuth/Evidence<br/><i>Collection metrics</i>"]
+        NS4["Sleuth/Service<br/><i>Health status</i>"]
+        NS5["Sleuth/Canary<br/><i>Test results</i>"]
     end
 
-    subgraph Dashboards["8 Dashboards"]
-        D1["Workflow"]
-        D2["Tools"]
-        D3["Evidence"]
-        D4["Global Health"]
+    subgraph Dashboards["8 Specialized Dashboards"]
+        D1["Workflow<br/>Dashboard"]
+        D2["Tools<br/>Dashboard"]
+        D3["Evidence<br/>Dashboard"]
+        D4["EC2 Perf<br/>Dashboard"]
+        D5["Global Health<br/>Dashboard"]
+        D6["Regional<br/>Dashboard"]
+        D7["Alerts<br/>Dashboard"]
+        D8["Operations<br/>Dashboard"]
     end
 
-    SF --> NS1
-    EC2 --> NS2
-    LAM --> NS3
+    subgraph Alerts["Alerting"]
+        ALM["CloudWatch<br/>Alarms"]
+        GATE["Pipeline<br/>Gate"]
+        NOTIFY["Notifications"]
+    end
+
+    SF -->|"State Changes"| EB
+    EC2 -->|"Tool Metrics"| EB
+    LAM -->|"Function Metrics"| EB
+    CAN -->|"Test Results"| EB
+
+    EB --> PROC
+    PROC --> NS1
+    PROC --> NS2
+    PROC --> NS3
+    PROC --> NS4
+    PROC --> NS5
+
     NS1 --> D1
     NS2 --> D2
     NS3 --> D3
-    NS4 --> D4
+    NS1 --> D4
+    NS4 --> D5
+    NS1 --> D6
+    NS4 --> D7
+    NS4 --> D8
+
+    NS4 --> ALM
+    ALM --> GATE
+    ALM --> NOTIFY
+
+    classDef source fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    classDef collect fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    classDef namespace fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    classDef dashboard fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef alert fill:#fce4ec,stroke:#e91e63,stroke-width:2px
+
+    class SF,EC2,LAM,CAN source
+    class EB,PROC collect
+    class NS1,NS2,NS3,NS4,NS5 namespace
+    class D1,D2,D3,D4,D5,D6,D7,D8 dashboard
+    class ALM,GATE,NOTIFY alert
 ```
 
 The metrics processor captures Step Functions state changes via EventBridge and emits CloudWatch metrics, enabling near-real-time dashboard updates without polling.
