@@ -58,6 +58,14 @@ Snapshot-Sleuth is a production-grade automated forensic analysis system for AWS
 ---
 
 <div class="links-section">
+  <a href="{{ '/code-examples' | relative_url }}" class="link-item">
+    <strong>Code Examples</strong>
+    <span>Implementation Patterns</span>
+  </a>
+  <a href="{{ '/metrics' | relative_url }}" class="link-item">
+    <strong>Performance Metrics</strong>
+    <span>Benchmarks & KPIs</span>
+  </a>
   <a href="https://github.com/{{ site.repository }}" class="link-item">
     <strong>Source Code</strong>
     <span>View on GitHub</span>
