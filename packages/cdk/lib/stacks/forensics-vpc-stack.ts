@@ -151,7 +151,7 @@ export class ForensicsVpcStack extends cdk.Stack {
   /**
    * Create VPC endpoints for all required AWS services
    */
-  private createVpcEndpoints(projectName: string, environment: string): void {
+  private createVpcEndpoints(_projectName: string, _environment: string): void {
     // Interface endpoints (use PrivateLink)
     const interfaceEndpoints: Array<{
       service: ec2.InterfaceVpcEndpointAwsService;

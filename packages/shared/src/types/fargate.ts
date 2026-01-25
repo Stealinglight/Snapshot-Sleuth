@@ -4,7 +4,7 @@
  * Types for the Fargate-based forensic analysis system.
  */
 
-import { ForensicTool, Severity } from './case';
+import { Severity } from './case';
 
 /**
  * Finding type categories

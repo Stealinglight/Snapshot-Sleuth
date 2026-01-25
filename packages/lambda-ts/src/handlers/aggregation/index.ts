@@ -5,7 +5,7 @@
  * Called by Step Functions after all forensic tools complete.
  */
 import { Handler } from 'aws-lambda';
-import { S3Client, GetObjectCommand, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { createLogger } from '@snapshot-sleuth/shared';
 
 const logger = createLogger();
