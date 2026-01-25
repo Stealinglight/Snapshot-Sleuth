@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snapshot Sleuth 2.0 Roadmap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans:,
+                    },
+                    colors: {
+                        'neon-blue': '#00f3ff',
+                        'neon-purple': '#bc13fe',
+                        'neon-green': '#0aff00',
+                        'dark-bg': '#050b14',
+                        'panel-bg': '#0f172a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050b14; color: #e2e8f0; }
+       .neon-text { text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
+       .neon-border { box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
+       .grid-bg {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+       .flow-arrow {
+            position: absolute;
+            background: linear-gradient(90deg, #0f172a, #00f3ff, #0f172a);
+            height: 2px;
+            width: 100px;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="grid-bg min-h-screen">
+
+    <header class="p-6 border-b border-gray-800 bg-dark-bg/90 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-neon-blue rounded-full flex items-center justify-center font-bold text-black shadow-[0_0_15px_#00f3ff]">SS</div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-wider text-white">SNAPSHOT SLEUTH <span class="text-neon-purple">2.0</span></h1>
+                    <p class="text-xs text-gray-400 uppercase tracking-widest">Serverless Forensic Architecture</p>
+                </div>
+            </div>
+            <div class="flex gap-4 text-sm font-mono">
+                <span class="px-3 py-1 rounded border border-neon-green/30 text-neon-green bg-neon-green/10">Status: ROADMAP</span>
+                <span class="px-3 py-1 rounded border border-neon-blue/30 text-neon-blue bg-neon-blue/10">v2.0-alpha</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 space-y-12">
+
+        <section>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-px bg-gray-700 flex-1"></div>
+                <h2 class="text-xl font-bold text-neon-blue uppercase tracking-widest">Architectural Evolution</h2>
+                <div class="h-px bg-gray-700 flex-1"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-panel-bg p-6 rounded-xl border border-gray-800 opacity-60 hover:opacity-100 transition duration-500">
+                    <h3 class="text-gray-400 font-mono text-sm mb-2">LEGACY ARCHITECTURE (V1.0)</h3>
+                    <div class="text-3xl font-bold text-white mb-4">Monolithic & Slow</div>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li class="flex items-center gap-2"><span class="text-red-500">✕</span> 15m+ Cold Start (Volume Hydration)</li>
+                        <li class="flex items-center gap-2"><span class="text-red-500">✕</span> Lambda Timeouts (15m Hard Limit)</li>
+                        <li class="flex items-center gap-2"><span class="text-red-500">✕</span> Single Threaded Analysis</li>
+                    </ul>
+                </div>
+
+                <div class="bg-panel-bg p-6 rounded-xl border border-neon-blue shadow-[0_0_20px_rgba(0,243,255,0.1)]">
+                    <h3 class="text-neon-blue font-mono text-sm mb-2">MODERN ARCHITECTURE (V2.0)</h3>
+                    <div class="text-3xl font-bold text-white mb-4">Event-Driven Swarm</div>
+                    <ul class="space-y-3 text-sm text-gray-300">
+                        <li class="flex items-center gap-2"><span class="text-neon-green">✓</span> <span class="text-white font-bold">Sub-Second Access</span> (Direct API)</li>
+                        <li class="flex items-center gap-2"><span class="text-neon-green">✓</span> <span class="text-white font-bold">Infinite Runtime</span> (Fargate Worker)</li>
+                        <li class="flex items-center gap-2"><span class="text-neon-green">✓</span> <span class="text-white font-bold">Multi-Agent Swarm</span> (Sonnet 4.5)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-px bg-gray-700 flex-1"></div>
+                <h2 class="text-xl font-bold text-neon-purple uppercase tracking-widest">The "Split-Path" Pipeline</h2>
+                <div class="h-px bg-gray-700 flex-1"></div>
+            </div>
+
+            <div class="relative bg-panel-bg border border-gray-700 rounded-2xl p-8 overflow-hidden">
+                
+                <div class="absolute inset-0 opacity-10 pointer-events-none">
+                    <svg width="100%" height="100%">
+                        <pattern id="circuit" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                            <path d="M10 10 L90 10 M90 10 L90 90" stroke="white" fill="none"/>
+                        </pattern>
+                        <rect width="100%" height="100%" fill="url(#circuit)"/>
+                    </svg>
+                </div>
+
+                <div class="relative z-10 flex flex-col md:flex-row justify-between items-stretch gap-4 h-full">
+                    
+                    <div class="w-full md:w-1/6 flex flex-col items-center justify-center p-4 border border-dashed border-gray-600 rounded-lg">
+                        <div class="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center text-3xl mb-2">🚨</div>
+                        <div class="font-bold text-white text-center">GuardDuty Alert</div>
+                        <div class="text-xs text-gray-500 mt-2">Triggers Step Function</div>
+                    </div>
+
+                    <div class="w-full md:w-2/6 flex flex-col gap-6">
+                        
+                        <div class="flex-1 bg-gray-900/80 border-l-4 border-neon-blue p-4 rounded-r-lg hover:bg-gray-800 transition">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-neon-blue font-bold text-sm">PATH A: FAST LANE</span>
+                                <span class="text-[10px] bg-neon-blue/20 text-neon-blue px-2 py-0.5 rounded">TRIAGE</span>
+                            </div>
+                            <div class="text-white font-bold mb-1">Lambda + ColdSnap</div>
+                            <p class="text-xs text-gray-400">Uses <code>ebs:GetSnapshotBlock</code>. No mounting. Extracts MFT, Logs, Registry Hives in seconds.</p>
+                        </div>
+
+                        <div class="flex-1 bg-gray-900/80 border-l-4 border-neon-purple p-4 rounded-r-lg hover:bg-gray-800 transition">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-neon-purple font-bold text-sm">PATH B: DEEP LANE</span>
+                                <span class="text-[10px] bg-neon-purple/20 text-neon-purple px-2 py-0.5 rounded">FULL SCAN</span>
+                            </div>
+                            <div class="text-white font-bold mb-1">Fargate Worker</div>
+                            <p class="text-xs text-gray-400">Uses <code>ec2:AttachVolume</code>. Full mount. Runs YARA, ClamAV, and Entropy Analysis.</p>
+                        </div>
+                    </div>
+
+                    <div class="w-full md:w-2/6 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-600 rounded-xl p-6 relative group">
+                        <div class="absolute top-2 right-2 flex gap-1">
+                            <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                            <div class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse delay-75"></div>
+                            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse delay-150"></div>
+                        </div>
+                        <h3 class="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                            <span class="text-2xl">🧠</span> AI Swarm
+                        </h3>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 bg-black/40 p-2 rounded">
+                                <div class="w-8 h-8 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold">H</div>
+                                <div>
+                                    <div class="text-xs font-bold text-blue-300">Haiku 4.5 Scouts</div>
+                                    <div class="text-[10px] text-gray-500">Log Parsing & Noise Filtering</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 bg-black/40 p-2 rounded border border-neon-green/30">
+                                <div class="w-8 h-8 rounded bg-green-500/20 text-green-400 flex items-center justify-center text-xs font-bold">S</div>
+                                <div>
+                                    <div class="text-xs font-bold text-green-300">Sonnet 4.5 Lead</div>
+                                    <div class="text-[10px] text-gray-500">Correlation & Narrative Building</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-full md:w-1/6 flex flex-col items-center justify-center">
+                        <div class="bg-gray-800 p-4 rounded-lg text-center w-full">
+                            <div class="text-sm font-bold text-white">AppSync UI</div>
+                            <div class="text-xs text-gray-500">Real-time Dashboard</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="bg-panel-bg p-6 rounded-xl border border-gray-800">
+                <h3 class="text-neon-blue font-bold mb-4">Deep Forensics: Entropy</h3>
+                <p class="text-sm text-gray-400 mb-4">
+                    The Fargate worker performs "Entropy Analysis" to find packed malware that signature tools miss.
+                </p>
+                <div class="space-y-2 text-xs font-mono">
+                    <div class="flex justify-between p-2 bg-gray-900 rounded">
+                        <span>Text / Logs</span>
+                        <span class="text-green-500">Entropy < 5.0</span>
+                    </div>
+                    <div class="flex justify-between p-2 bg-gray-900 rounded">
+                        <span>Standard Binary</span>
+                        <span class="text-yellow-500">Entropy 5.0 - 6.8</span>
+                    </div>
+                    <div class="flex justify-between p-2 bg-gray-900 rounded border border-red-500/30">
+                        <span>Packed Malware</span>
+                        <span class="text-red-500 font-bold">Entropy > 7.2</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 bg-panel-bg p-4 rounded-xl border border-gray-800 h-80 relative">
+                <div id="entropyChart" class="w-full h-full"></div>
+            </div>
+        </section>
+
+        <section>
+            <div class="flex items-center gap-4 mb-8">
+                <div class="h-px bg-gray-700 flex-1"></div>
+                <h2 class="text-xl font-bold text-white uppercase tracking-widest">Implementation Timeline</h2>
+                <div class="h-px bg-gray-700 flex-1"></div>
+            </div>
+
+            <div class="relative">
+                <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-800"></div>
+
+                <div class="relative pl-20 pb-8 group">
+                    <div class="absolute left-[26px] top-1 w-4 h-4 rounded-full bg-neon-blue shadow-[0_0_10px_#00f3ff]"></div>
+                    <h3 class="text-neon-blue font-bold">Phase 1: Compute Modernization</h3>
+                    <p class="text-gray-400 text-sm mt-1">Dockerize forensic toolkit. Migrate "Heavy Scan" to Fargate. Enable EBS Attach permissions.</p>
+                </div>
+
+                <div class="relative pl-20 pb-8 group">
+                    <div class="absolute left-[26px] top-1 w-4 h-4 rounded-full bg-gray-600 group-hover:bg-neon-purple transition"></div>
+                    <h3 class="text-white group-hover:text-neon-purple transition font-bold">Phase 2: Advanced Storage</h3>
+                    <p class="text-gray-400 text-sm mt-1">Implement <code>coldsnap</code> in Lambda for "Fast Lane" triage. Build multi-attach logic for rapid I/O.</p>
+                </div>
+
+                <div class="relative pl-20 pb-8 group">
+                    <div class="absolute left-[26px] top-1 w-4 h-4 rounded-full bg-gray-600 group-hover:bg-neon-green transition"></div>
+                    <h3 class="text-white group-hover:text-neon-green transition font-bold">Phase 3: The Intelligence Layer</h3>
+                    <p class="text-gray-400 text-sm mt-1">Deploy Sonnet 4.5 Swarm. Build "Haiku" sub-agents for log reduction. Connect S3 outputs to Bedrock.</p>
+                </div>
+
+                <div class="relative pl-20 group">
+                    <div class="absolute left-[26px] top-1 w-4 h-4 rounded-full bg-gray-600 group-hover:bg-white transition"></div>
+                    <h3 class="text-white font-bold">Phase 4: Operational Polish</h3>
+                    <p class="text-gray-400 text-sm mt-1">AppSync Real-time API. React Dashboard. Secrets Manager integration.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-gray-800 p-8 mt-12 text-center">
+        <p class="text-gray-600 text-sm">Snapshot Sleuth 2.0 • Generated for Internal Planning</p>
+    </footer>
+
+    <script>
+        // --- 3D Entropy Chart Logic ---
+        document.addEventListener("DOMContentLoaded", function() {
+            // Data Generation
+            // Clean files: Large size, low entropy
+            const cleanX = Array.from({length: 40}, () => Math.random() * 5000 + 100);
+            const cleanY = Array.from({length: 40}, () => Math.random() * 5 + 1);
+            const cleanZ = cleanX.map(x => Math.random()); // Random scatter Z
+
+            // Malware: Small size, HIGH entropy
+            const malX = Array.from({length: 15}, () => Math.random() * 500 + 50); 
+            const malY = Array.from({length: 15}, () => Math.random() * 1.5 + 7.2); // Entropy > 7.2
+            const malZ = malX.map(x => Math.random());
+
+            const data =;
+
+            const layout = {
+                margin: {l:0, r:0, b:0, t:0},
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                scene: {
+                    xaxis: {title: 'Size (KB)', color:'#64748b', gridcolor:'#1e293b'},
+                    yaxis: {title: 'Entropy', color:'#64748b', gridcolor:'#1e293b'},
+                    zaxis: {showticklabels: false, gridcolor:'#1e293b'},
+                    bgcolor: 'rgba(0,0,0,0)'
+                },
+                legend: { font: {color: '#cbd5e1'} }
+            };
+
+            Plotly.newPlot('entropyChart', data, layout, {displayModeBar: false});
+        });
+    </script>
+</body>
+</html>

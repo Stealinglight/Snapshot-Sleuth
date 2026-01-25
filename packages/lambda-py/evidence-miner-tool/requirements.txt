@@ -1,0 +1,11 @@
+# XML parsing (safe)
+defusedxml>=0.7.1
+
+# Windows event log parsing
+python-evtx>=0.7.4
+
+# Timezone support
+pytz>=2024.1
+
+# For parsing various file formats
+python-dateutil>=2.8.2

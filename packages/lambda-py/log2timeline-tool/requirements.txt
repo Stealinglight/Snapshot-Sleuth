@@ -1,0 +1,15 @@
+# Plaso - Log2Timeline Python implementation
+plaso>=20240308
+
+# dfVFS - Digital Forensics Virtual File System
+dfvfs>=20240309
+
+# Additional parsers
+artifacts>=20240309
+dfdatetime>=20240310
+
+# For timeline analysis
+pandas>=2.0.0
+
+# JSON output handling
+orjson>=3.9.0

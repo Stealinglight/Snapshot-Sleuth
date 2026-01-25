@@ -1,0 +1,5 @@
+# YARA Python bindings
+yara-python>=4.5.0
+
+# For file type detection
+python-magic>=0.4.27

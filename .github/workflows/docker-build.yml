@@ -1,0 +1,230 @@
+name: Build Forensics Docker Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/lambda-py/**'
+      - '.github/workflows/docker-build.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/lambda-py/**'
+      - '.github/workflows/docker-build.yml'
+  workflow_dispatch:
+    inputs:
+      push_to_ecr:
+        description: 'Push images to ECR'
+        required: false
+        type: boolean
+        default: false
+      specific_tool:
+        description: 'Build specific tool (leave empty for all)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - forensics-base
+          - yara
+          - clamav
+          - evidence-miner
+          - log2timeline
+
+env:
+  AWS_REGION: us-east-1
+  PROJECT_NAME: snapshot-sleuth
+
+jobs:
+  build-base:
+    name: Build forensics-base
+    runs-on: ubuntu-latest
+    outputs:
+      base-image: ${{ steps.build.outputs.image }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build base image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: packages/lambda-py/forensics-base
+          file: packages/lambda-py/forensics-base/Dockerfile
+          push: false
+          load: true
+          tags: |
+            forensics-base:latest
+            ${{ env.PROJECT_NAME }}/forensics-base:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Export base image for dependent builds
+        run: docker save forensics-base:latest | gzip > forensics-base.tar.gz
+
+      - name: Upload base image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: forensics-base-image
+          path: forensics-base.tar.gz
+          retention-days: 1
+
+      - name: Scan base image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.PROJECT_NAME }}/forensics-base:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-base-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-base-results.sarif'
+          category: forensics-base
+
+  build-tools:
+    name: Build ${{ matrix.tool }}
+    runs-on: ubuntu-latest
+    needs: build-base
+    strategy:
+      fail-fast: false
+      matrix:
+        tool: [yara, clamav, evidence-miner, log2timeline]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download base image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: forensics-base-image
+
+      - name: Load base image
+        run: gunzip -c forensics-base.tar.gz | docker load
+
+      - name: Build tool image
+        run: |
+          docker build \
+            -t ${{ env.PROJECT_NAME }}/${{ matrix.tool }}:${{ github.sha }} \
+            -f packages/lambda-py/${{ matrix.tool }}-tool/Dockerfile \
+            packages/lambda-py/${{ matrix.tool }}-tool
+
+      - name: Scan tool image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.PROJECT_NAME }}/${{ matrix.tool }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-${{ matrix.tool }}-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-${{ matrix.tool }}-results.sarif'
+          category: ${{ matrix.tool }}
+
+  push-to-ecr:
+    name: Push to ECR
+    runs-on: ubuntu-latest
+    needs: [build-base, build-tools]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event.inputs.push_to_ecr == 'true')
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push forensics-base
+        uses: docker/build-push-action@v5
+        with:
+          context: packages/lambda-py/forensics-base
+          file: packages/lambda-py/forensics-base/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}/forensics-base:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}/forensics-base:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push yara
+        uses: docker/build-push-action@v5
+        with:
+          context: packages/lambda-py/yara-tool
+          file: packages/lambda-py/yara-tool/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}/yara:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}/yara:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push clamav
+        uses: docker/build-push-action@v5
+        with:
+          context: packages/lambda-py/clamav-tool
+          file: packages/lambda-py/clamav-tool/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}/clamav:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}/clamav:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push evidence-miner
+        uses: docker/build-push-action@v5
+        with:
+          context: packages/lambda-py/evidence-miner-tool
+          file: packages/lambda-py/evidence-miner-tool/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}/evidence-miner:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}/evidence-miner:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push log2timeline
+        uses: docker/build-push-action@v5
+        with:
+          context: packages/lambda-py/log2timeline-tool
+          file: packages/lambda-py/log2timeline-tool/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}/log2timeline:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}/log2timeline:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Summary
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          echo "## Docker Images Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Image | Tag |" >> $GITHUB_STEP_SUMMARY
+          echo "| ----- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| forensics-base | ${COMMIT_SHA}, latest |" >> $GITHUB_STEP_SUMMARY
+          echo "| yara | ${COMMIT_SHA}, latest |" >> $GITHUB_STEP_SUMMARY
+          echo "| clamav | ${COMMIT_SHA}, latest |" >> $GITHUB_STEP_SUMMARY
+          echo "| evidence-miner | ${COMMIT_SHA}, latest |" >> $GITHUB_STEP_SUMMARY
+          echo "| log2timeline | ${COMMIT_SHA}, latest |" >> $GITHUB_STEP_SUMMARY

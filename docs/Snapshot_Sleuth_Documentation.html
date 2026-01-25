@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snapshot Sleuth: Architecture & Documentation</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Config for Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        sleuth: {
+                            bg: '#0B0F19',      // Deepest Space
+                            panel: '#151E2E',   // Dark Blue Grey
+                            surface: '#1E293B', // Slate 800
+                            primary: '#38BDF8', // Sky 400
+                            secondary: '#818CF8', // Indigo 400
+                            accent: '#F472B6',  // Pink 400
+                            success: '#34D399', // Emerald 400
+                            warning: '#FBBF24', // Amber 400
+                            danger: '#FB7185',  // Rose 400
+                            text: '#F1F5F9'     // Slate 100
+                        }
+                    },
+                    backgroundImage: {
+                        'grid-pattern': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0B0F19;
+            color: #F1F5F9;
+        }
+
+        /* Scanline effect */
+        .scanline {
+            width: 100%;
+            height: 100px;
+            z-index: 10;
+            background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(56, 189, 248, 0.05) 50%, rgba(0,0,0,0) 100%);
+            opacity: 0.1;
+            position: fixed;
+            bottom: 100%;
+            animation: scanline 10s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scanline {
+            0% { bottom: 100%; }
+            100% { bottom: -100%; }
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0F19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .glass-panel {
+            background: rgba(21, 30, 46, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(56, 189, 248, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #c9d1d9;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-sleuth-primary selection:text-sleuth-bg">
+
+    <div class="scanline"></div>
+
+    <!-- Background Grid -->
+    <div class="fixed inset-0 bg-grid-pattern bg-[length:40px_40px] opacity-[0.05] pointer-events-none"></div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 glass-panel border-b border-white/10">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-sleuth-primary to-sleuth-secondary rounded-lg flex items-center justify-center font-bold text-black shadow-[0_0_15px_rgba(56,189,248,0.3)]">
+                    SS
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">SNAPSHOT SLEUTH <span class="text-xs align-top text-sleuth-secondary bg-sleuth-surface px-1.5 py-0.5 rounded-full ml-1">v1.0</span></h1>
+                    <p class="text-[10px] text-gray-400 font-mono tracking-widest uppercase">Automated Cloud Forensics</p>
+                </div>
+            </div>
+            <div class="hidden md:flex space-x-1">
+                <a href="#overview" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition">Overview</a>
+                <a href="#architecture" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition">Architecture</a>
+                <a href="#scanners" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition">Forensic Engine</a>
+                <a href="#integrations" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition">Integrations</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 space-y-24 relative z-10">
+
+        <!-- HERO SECTION -->
+        <section id="overview" class="text-center max-w-4xl mx-auto">
+            <h2 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                Serverless
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-sleuth-primary via-sleuth-secondary to-sleuth-accent">Forensic Analysis</span>
+                <br>for AWS Workloads
+            </h2>
+            <p class="text-lg text-gray-400 mb-10 leading-relaxed max-w-2xl mx-auto">
+                Snapshot Sleuth orchestrates the automated analysis of EBS snapshots. It detects malware, scans for secrets, and identifies compromised indicators without spinning up permanent infrastructure.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                <div class="glass-panel p-6 rounded-xl hover:border-sleuth-primary/50 transition duration-300">
+                    <div class="text-3xl mb-3">⚡</div>
+                    <h3 class="text-lg font-bold text-white mb-2">Event Driven</h3>
+                    <p class="text-sm text-gray-400">Triggers automatically via EventBridge when snapshots are created or flagged.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-xl hover:border-sleuth-secondary/50 transition duration-300">
+                    <div class="text-3xl mb-3">🔍</div>
+                    <h3 class="text-lg font-bold text-white mb-2">Multi-Scanner</h3>
+                    <p class="text-sm text-gray-400">Runs ClamAV, YARA, and Evidence Miner in parallel Lambda environments.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-xl hover:border-sleuth-accent/50 transition duration-300">
+                    <div class="text-3xl mb-3">🔌</div>
+                    <h3 class="text-lg font-bold text-white mb-2">Adapter Pattern</h3>
+                    <p class="text-sm text-gray-400">Modular output system supporting Slack, GitHub Issues, and Email.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ARCHITECTURE SECTION -->
+        <section id="architecture">
+            <div class="flex items-center space-x-4 mb-8">
+                <div class="h-px bg-gray-700 flex-1"></div>
+                <h2 class="text-3xl font-bold text-white tracking-tight">System Architecture</h2>
+                <div class="h-px bg-gray-700 flex-1"></div>
+            </div>
+
+            <!-- Architecture Diagram (HTML/CSS Grid) -->
+            <div class="relative bg-sleuth-panel rounded-2xl border border-white/10 p-8 md:p-12 overflow-hidden shadow-2xl">
+                
+                <!-- Background decorative elements -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-sleuth-secondary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 relative z-10">
+                    
+                    <!-- Trigger -->
+                    <div class="md:col-span-2 flex flex-col justify-center">
+                        <div class="bg-sleuth-surface border border-sleuth-warning/50 p-4 rounded-lg text-center shadow-lg shadow-sleuth-warning/10">
+                            <div class="text-2xl mb-2">📡</div>
+                            <div class="font-mono font-bold text-sleuth-warning text-sm">EventBridge</div>
+                            <div class="text-xs text-gray-400 mt-1">Snapshot Created</div>
+                        </div>
+                        <div class="h-8 w-0.5 bg-gray-600 mx-auto md:hidden"></div> <!-- Mobile connector -->
+                        <div class="hidden md:block w-full h-0.5 bg-gray-600 my-auto translate-x-2"></div> <!-- Desktop connector -->
+                    </div>
+
+                    <!-- Core Logic -->
+                    <div class="md:col-span-3 flex flex-col justify-center space-y-4">
+                        <div class="bg-sleuth-surface border border-sleuth-primary p-4 rounded-lg shadow-lg shadow-sleuth-primary/10 relative">
+                            <div class="absolute -top-3 left-4 bg-sleuth-bg px-2 text-xs font-mono text-sleuth-primary border border-sleuth-primary rounded">Orchestrator</div>
+                            <h4 class="font-bold text-white mb-1">Step Functions</h4>
+                            <p class="text-xs text-gray-400">Coordinates parallel execution & error handling</p>
+                        </div>
+                        
+                        <!-- Connector Lines -->
+                        <div class="flex justify-center md:justify-start md:pl-8">
+                            <div class="h-8 w-0.5 bg-gray-600"></div>
+                        </div>
+
+                        <div class="bg-sleuth-surface border border-white/20 p-3 rounded-lg text-center opacity-80">
+                            <div class="font-mono text-xs text-gray-300">Validator Lambda</div>
+                            <div class="text-[10px] text-gray-500">validate-snapshot.ts</div>
+                        </div>
+                    </div>
+
+                    <!-- Compute (Scanners) -->
+                    <div class="md:col-span-4 flex flex-col space-y-4 justify-center relative">
+                        <!-- Connecting brackets visually -->
+                        <div class="absolute left-[-20px] top-4 bottom-4 w-4 border-l-2 border-t-2 border-b-2 border-gray-600 rounded-l-lg hidden md:block"></div>
+
+                        <div class="bg-sleuth-surface border border-sleuth-accent/50 p-3 rounded-lg flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-sleuth-accent/20 rounded flex items-center justify-center text-sleuth-accent font-bold text-xs">PY</div>
+                            <div>
+                                <div class="font-bold text-sm">ClamAV Scanner</div>
+                                <div class="text-[10px] text-gray-400">lambda-py/clamav</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-sleuth-surface border border-sleuth-accent/50 p-3 rounded-lg flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-sleuth-accent/20 rounded flex items-center justify-center text-sleuth-accent font-bold text-xs">PY</div>
+                            <div>
+                                <div class="font-bold text-sm">YARA Scanner</div>
+                                <div class="text-[10px] text-gray-400">lambda-py/yara</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-sleuth-surface border border-sleuth-accent/50 p-3 rounded-lg flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-sleuth-accent/20 rounded flex items-center justify-center text-sleuth-accent font-bold text-xs">PY</div>
+                            <div>
+                                <div class="font-bold text-sm">Evidence Miner</div>
+                                <div class="text-[10px] text-gray-400">lambda-py/miner</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Output -->
+                    <div class="md:col-span-3 flex flex-col justify-center pl-4 border-l border-gray-700 border-dashed">
+                        <h5 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Adapters</h5>
+                        
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between bg-black/40 p-2 rounded border border-gray-800">
+                                <span class="text-xs text-gray-300">Slack Webhook</span>
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                            </div>
+                            <div class="flex items-center justify-between bg-black/40 p-2 rounded border border-gray-800">
+                                <span class="text-xs text-gray-300">GitHub Issues</span>
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                            </div>
+                            <div class="flex items-center justify-between bg-black/40 p-2 rounded border border-gray-800">
+                                <span class="text-xs text-gray-300">Frontend API</span>
+                                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FORENSIC ENGINE SECTION -->
+        <section id="scanners" class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div>
+                <h2 class="text-3xl font-bold text-white mb-6">The Forensic Engine</h2>
+                <p class="text-gray-400 mb-8">
+                    Snapshot Sleuth leverages Python-based Lambda functions to perform rapid triage analysis. Each scanner runs in isolation, allowing for concurrent processing of evidence.
+                </p>
+
+                <!-- Tool breakdown accordion style -->
+                <div class="space-y-4">
+                    <div class="group">
+                        <div class="bg-sleuth-surface p-4 rounded-lg border border-gray-700 group-hover:border-sleuth-primary transition cursor-default">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-bold text-white flex items-center">
+                                    <span class="w-2 h-2 bg-sleuth-primary rounded-full mr-2"></span>
+                                    YARA Scanner
+                                </h4>
+                                <span class="text-xs font-mono text-gray-500">yara_scanner.py</span>
+                            </div>
+                            <p class="text-sm text-gray-400">
+                                Uses pattern matching to identify malware families, webshells, and suspicious strings within files. Compiles rules dynamically on cold start.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="bg-sleuth-surface p-4 rounded-lg border border-gray-700 group-hover:border-sleuth-secondary transition cursor-default">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-bold text-white flex items-center">
+                                    <span class="w-2 h-2 bg-sleuth-secondary rounded-full mr-2"></span>
+                                    ClamAV
+                                </h4>
+                                <span class="text-xs font-mono text-gray-500">clamav_scanner.py</span>
+                            </div>
+                            <p class="text-sm text-gray-400">
+                                Standard anti-virus signature scanning. Best for detecting known commodity malware and common attack tools left by adversaries.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="bg-sleuth-surface p-4 rounded-lg border border-gray-700 group-hover:border-sleuth-accent transition cursor-default">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-bold text-white flex items-center">
+                                    <span class="w-2 h-2 bg-sleuth-accent rounded-full mr-2"></span>
+                                    Evidence Miner
+                                </h4>
+                                <span class="text-xs font-mono text-gray-500">evidence_miner.py</span>
+                            </div>
+                            <p class="text-sm text-gray-400">
+                                Heuristic scanner looking for high-value artifacts: SSH keys, AWS credentials, bash history, and sensitive config files.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization of Tool Capabilities -->
+            <div class="glass-panel p-6 rounded-2xl">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 border-b border-gray-700 pb-2">Scanner Capabilities</h3>
+                <div class="chart-container">
+                    <canvas id="scannerRadar"></canvas>
+                </div>
+                <div class="mt-4 text-center">
+                    <p class="text-xs text-gray-500 italic">
+                        * Comparison of detection strengths based on current rule sets
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CODE & INTEGRATION -->
+        <section id="integrations">
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Code Sample -->
+                <div class="w-full md:w-1/2">
+                    <h2 class="text-3xl font-bold text-white mb-6">Extensible Adapters</h2>
+                    <p class="text-gray-400 mb-6">
+                        The <code>packages/adapters</code> module implements a Factory Pattern, allowing you to easily swap or chain notification providers without changing the core logic.
+                    </p>
+                    <div class="code-block shadow-xl">
+<span class="text-purple-400">import</span> { AdapterFactory } <span class="text-purple-400">from</span> <span class="text-green-400">'./factory'</span>;
+
+<span class="text-gray-500">// Initialize adapters based on config</span>
+<span class="text-purple-400">const</span> adapters = AdapterFactory.<span class="text-blue-400">createAdapters</span>([
+    <span class="text-green-400">'SLACK'</span>,
+    <span class="text-green-400">'GITHUB'</span>,
+    <span class="text-green-400">'EMAIL'</span>
+]);
+
+<span class="text-gray-500">// Broadcast findings to all channels</span>
+<span class="text-purple-400">await</span> Promise.<span class="text-blue-400">all</span>(
+    adapters.<span class="text-blue-400">map</span>(adapter => 
+        adapter.<span class="text-blue-400">sendNotification</span>({
+            title: <span class="text-green-400">`Case #${caseId} Analysis Complete`</span>,
+            severity: <span class="text-green-400">'HIGH'</span>,
+            findings: scanResults
+        })
+    )
+);
+                    </div>
+                </div>
+
+                <!-- Integration ecosystem Viz -->
+                <div class="w-full md:w-1/2">
+                    <div class="bg-sleuth-panel rounded-2xl p-8 border border-white/10 h-full">
+                        <h3 class="text-lg font-bold mb-6">Workflow Integration</h3>
+                        
+                        <!-- Timeline/Process Flow -->
+                        <div class="relative pl-8 space-y-8 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-gradient-to-b before:from-sleuth-primary before:to-sleuth-surface">
+                            
+                            <div class="relative">
+                                <div class="absolute -left-[2.15rem] top-1 w-4 h-4 rounded-full bg-sleuth-primary shadow-[0_0_10px_rgba(56,189,248,0.5)]"></div>
+                                <h4 class="font-bold text-white text-sm">Detection</h4>
+                                <p class="text-xs text-gray-400">Snapshot Sleuth finds a match (YARA rule 'Webshell_PHP').</p>
+                            </div>
+
+                            <div class="relative">
+                                <div class="absolute -left-[2.15rem] top-1 w-4 h-4 rounded-full bg-sleuth-bg border-2 border-sleuth-secondary"></div>
+                                <h4 class="font-bold text-white text-sm">Triage Ticket</h4>
+                                <p class="text-xs text-gray-400">GitHub Issue #42 created automatically labeled "Incident".</p>
+                            </div>
+
+                            <div class="relative">
+                                <div class="absolute -left-[2.15rem] top-1 w-4 h-4 rounded-full bg-sleuth-bg border-2 border-sleuth-accent"></div>
+                                <h4 class="font-bold text-white text-sm">Alerting</h4>
+                                <p class="text-xs text-gray-400">Slack message sent to #sec-ops with link to dashboard.</p>
+                            </div>
+
+                            <div class="relative">
+                                <div class="absolute -left-[2.15rem] top-1 w-4 h-4 rounded-full bg-sleuth-surface"></div>
+                                <h4 class="font-bold text-white text-sm">Remediation</h4>
+                                <p class="text-xs text-gray-400">Analyst reviews findings in Frontend Dashboard.</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="border-t border-white/10 py-8 text-center">
+            <p class="text-gray-500 text-sm">Snapshot Sleuth Documentation • Generated for internal review</p>
+        </footer>
+
+    </main>
+
+    <script>
+        // DATA PROCESSING & CHART CONFIG
+        
+        // Label wrapping helper for Chart.js
+        function processLabels(labels) {
+            return labels.map(label => {
+                if (label.length > 16) {
+                    const words = label.split(' ');
+                    const lines = [];
+                    let currentLine = words[0];
+                    for (let i = 1; i < words.length; i++) {
+                        if ((currentLine + " " + words[i]).length <= 16) {
+                            currentLine += " " + words[i];
+                        } else {
+                            lines.push(currentLine);
+                            currentLine = words[i];
+                        }
+                    }
+                    lines.push(currentLine);
+                    return lines;
+                }
+                return label;
+            });
+        }
+
+        // Radar Chart for Scanners
+        const ctx = document.getElementById('scannerRadar').getContext('2d');
+        
+        // Colors
+        const colorPrimary = 'rgba(56, 189, 248, 0.5)'; // Sky
+        const colorSecondary = 'rgba(129, 140, 248, 0.5)'; // Indigo
+        const colorAccent = 'rgba(244, 114, 182, 0.5)'; // Pink
+
+        const data = {
+            labels: processLabels(['Malware Signatures', 'Pattern Matching', 'Secrets Detection', 'Anomaly Detection', 'Speed', 'Metadata Analysis']),
+            datasets: [
+                {
+                    label: 'ClamAV',
+                    data: [9, 2, 1, 1, 6, 2],
+                    backgroundColor: colorPrimary,
+                    borderColor: '#38BDF8',
+                    pointBackgroundColor: '#38BDF8',
+                    borderWidth: 2
+                },
+                {
+                    label: 'YARA',
+                    data: [6, 10, 5, 4, 9, 3],
+                    backgroundColor: colorSecondary,
+                    borderColor: '#818CF8',
+                    pointBackgroundColor: '#818CF8',
+                    borderWidth: 2
+                },
+                {
+                    label: 'Evidence Miner',
+                    data: [1, 3, 10, 8, 10, 9],
+                    backgroundColor: colorAccent,
+                    borderColor: '#F472B6',
+                    pointBackgroundColor: '#F472B6',
+                    borderWidth: 2
+                }
+            ]
+        };
+
+        const config = {
+            type: 'radar',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        pointLabels: {
+                            color: '#94a3b8',
+                            font: { family: "'JetBrains Mono', monospace", size: 10 }
+                        },
+                        ticks: { display: false, backdropColor: 'transparent' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#e2e8f0', font: { family: "'Space Grotesk', sans-serif" } },
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#38BDF8',
+                        bodyColor: '#e2e8f0',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        new Chart(ctx, config);
+    </script>
+</body>
+</html>

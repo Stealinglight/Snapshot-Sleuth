@@ -1,0 +1,5 @@
+# ClamAV Python bindings
+pyclamd>=0.4.0
+
+# For parsing ClamAV output
+python-dateutil>=2.8.2
