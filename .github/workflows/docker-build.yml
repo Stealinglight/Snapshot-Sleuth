@@ -56,9 +56,21 @@ jobs:
           file: packages/lambda-py/forensics-base/Dockerfile
           push: false
           load: true
-          tags: ${{ env.PROJECT_NAME }}/forensics-base:${{ github.sha }}
+          tags: |
+            forensics-base:latest
+            ${{ env.PROJECT_NAME }}/forensics-base:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Export base image for dependent builds
+        run: docker save forensics-base:latest | gzip > forensics-base.tar.gz
+
+      - name: Upload base image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: forensics-base-image
+          path: forensics-base.tar.gz
+          retention-days: 1
 
       - name: Scan base image for vulnerabilities
         uses: aquasecurity/trivy-action@master
@@ -87,6 +99,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Download base image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: forensics-base-image
+
+      - name: Load base image
+        run: gunzip -c forensics-base.tar.gz | docker load
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
