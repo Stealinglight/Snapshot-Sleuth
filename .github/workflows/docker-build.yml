@@ -108,19 +108,12 @@ jobs:
       - name: Load base image
         run: gunzip -c forensics-base.tar.gz | docker load
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Build tool image
-        uses: docker/build-push-action@v5
-        with:
-          context: packages/lambda-py/${{ matrix.tool }}-tool
-          file: packages/lambda-py/${{ matrix.tool }}-tool/Dockerfile
-          push: false
-          load: true
-          tags: ${{ env.PROJECT_NAME }}/${{ matrix.tool }}:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        run: |
+          docker build \
+            -t ${{ env.PROJECT_NAME }}/${{ matrix.tool }}:${{ github.sha }} \
+            -f packages/lambda-py/${{ matrix.tool }}-tool/Dockerfile \
+            packages/lambda-py/${{ matrix.tool }}-tool
 
       - name: Scan tool image for vulnerabilities
         uses: aquasecurity/trivy-action@master
