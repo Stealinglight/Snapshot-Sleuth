@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     binutils \
     # Build dependencies (for Python packages)
     gcc \
+    g++ \
     python3-dev \
     libffi-dev \
     # Cleanup
